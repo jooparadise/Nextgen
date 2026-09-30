@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KACCUSA 차세대 리더 모국방문 일정</title>
+    <style>
+        :root {
+            --primary-color: #1a365d;
+            --secondary-color: #2b6cb0;
+            --bg-color: #f7fafc;
+            --card-bg: #ffffff;
+            --text-main: #2d3748;
+            --text-muted: #718096;
+        }
+
+        body {
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            padding: 30px 0;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #e2e8f0;
+            position: relative;
+        }
+
+        .header h1 {
+            color: var(--primary-color);
+            margin: 0 0 15px 0;
+            font-size: 1.8rem;
+        }
+
+        .toggle-btn {
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.9rem;
+            transition: background-color 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .toggle-btn:hover {
+            background-color: #2c5282;
+        }
+
+        .date-section {
+            margin-bottom: 40px;
+        }
+
+        .date-title {
+            font-size: 1.4rem;
+            color: var(--primary-color);
+            border-left: 4px solid var(--secondary-color);
+            padding-left: 10px;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .schedule-card {
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            padding: 15px 20px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            border: 1px solid #edf2f7;
+        }
+
+        .schedule-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            border-color: #cbd5e0;
+        }
+
+        .time {
+            font-weight: bold;
+            color: var(--secondary-color);
+            min-width: 130px;
+            font-size: 1.05rem;
+        }
+
+        .title {
+            flex-grow: 1;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .subtitle {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(3px);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .modal-content {
+            background-color: white;
+            width: 90%;
+            max-width: 500px;
+            border-radius: 15px;
+            padding: 30px;
+            position: relative;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            transform: translateY(20px);
+            transition: transform 0.3s ease;
+        }
+
+        .modal-overlay.active .modal-content {
+            transform: translateY(0);
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-muted);
+        }
+
+        .close-btn:hover {
+            color: #e53e3e;
+        }
+
+        .modal-time {
+            color: var(--secondary-color);
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .modal-title {
+            font-size: 1.4rem;
+            color: var(--primary-color);
+            margin-bottom: 5px;
+            margin-top: 0;
+        }
+
+        .modal-desc {
+            font-size: 1rem;
+            color: var(--text-muted);
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .modal-info {
+            background-color: #ebf8ff;
+            padding: 20px;
+            border-radius: 8px;
+            font-size: 0.98rem;
+            line-height: 1.75;
+            color: #2c5282;
+            border-left: 4px solid #3182ce;
+            white-space: pre-line;
+        }
+
+        .modal-content {
+            max-height: 82vh;
+            overflow-y: auto;
+        }
+
+        /* Language Toggle Classes */
+        .en { display: none; }
+        body.lang-en .en { display: block; }
+        body.lang-en .ko { display: none; }
+        body.lang-en .en-inline { display: inline; }
+        body.lang-en .ko-inline { display: none; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>
+            <span class="ko">KACCUSA 차세대 리더 모국방문 일정</span>
+            <span class="en">KACCUSA Next Generation Leaders Homeland Visit</span>
+        </h1>
+        <button class="toggle-btn" onclick="toggleLanguage()">
+            <span class="ko">🇺🇸 Switch to English</span>
+            <span class="en">🇰🇷 한국어로 보기</span>
+        </button>
+    </div>
+
+    <!-- 9/30 (수) -->
+    <div class="date-section">
+        <div class="date-title">
+            <span class="ko">9/30 (수)</span>
+            <span class="en">Sept 30 (Wed)</span>
+        </div>
+
+        <div class="schedule-card" onclick="openModal(this)">
+            <div class="time">8:30</div>
+            <div>
+                <div class="title ko">삼정호텔 출발</div>
+                <div class="title en">Departure from Samjung Hotel</div>
+                <div class="subtitle ko">국립현충원으로 이동</div>
+                <div class="subtitle en">Moving to Seoul National Cemetery</div>
+            </div>
+            <div class="modal-data" style="display:none;" 
+                 data-time="8:30" 
+                 data-title-ko="삼정호텔 출발" data-title-en="Departure from Samjung Hotel"
+                 data-desc-ko="국립현충원으로 이동" data-desc-en="Moving to Seoul National Cemetery"
+                 data-info-ko="본격적인 일정이 시작됩니다. 모두 늦지 않게 로비에 모여 인원 점검 후 출발하겠습니다. 활기찬 하루 되세요!" 
+                 data-info-en="Our official schedule begins! Please gather at the lobby on time for a headcount before departure. Have a great day!"></div>
+        </div>
+
+        <div class="schedule-card" onclick="openModal(this)">
+            <div class="time">9:10~9:30</div>
+            <div>
+                <div class="title ko">국립현충원 참배</div>
+                <div class="title en">Seoul National Cemetery Visit</div>
+            </div>
+            <div class="modal-data" style="display:none;" 
+                 data-time="9:10~9:30" 
+                 data-title-ko="국립현충원 참배" data-title-en="Seoul National Cemetery Visit"
+                 data-desc-ko="대한민국 호국영령 추모" data-desc-en="Honoring Korea's fallen heroes"
+                 data-info-ko="국가와 민족을 위해 희생하신 순국선열을 기리는 경건한 시간입니다. 단정한 복장과 차분한 마음가짐으로 참배에 임해주시길 부탁드립니다." 
+                 data-info-en="A solemn time to honor the martyrs who sacrificed for the nation. Please maintain a reverent attitude and wear neat attire during the visit."></div>
+        </div>
+
+        <div class="schedule-card" onclick="openModal(this)">
+            <div class="time">10:00~11:00</div>
+            <div>
+                <div class="title ko">서울대학교 국가미래전략원 방문</div>
+                <div class="title en">SNU Institute for Future Strategy</div>
+                <div class="subtitle ko">원장 외 교수들과 세계정세와 한반도의 미래 논의</div>
+                <div class="subtitle en">Discussion on global affairs & Korean Peninsula</div>
+            </div>
+            <div class="modal-data" style="display:none;" 
+                 data-time="10:00~11:00" 
+                 data-title-ko="서울대학교 국가미래전략원" data-title-en="SNU Institute for Future Strategy"
+                 data-desc-ko="세계정세 및 한반도 미래 간담회" data-desc-en="Discussion on Global Affairs"
+                 data-info-ko="🏛 기관 소개 | 서울대학교 국가미래전략원
+서울대학교가 국가적 중장기 과제를 연구하기 위해 2021년 설립한 미래전략 연구기관입니다. 2022년 2월 공식 개원했으며, 다학제 연구를 통해 국가 미래전략과 정책 대안을 다룹니다.
+
+👤 책임자 | 손인주 원장 직무대리
+서울대학교 정치외교학부 교수. 2026년 9월 원장 직무대리로 임명되었습니다.
+
+🔎 주요 연구 분야
+• 국제정치·경제안보
+• 과학기술과 미래
+• 인구·민주주의·글로벌 한국
+• 탄소중립·지역균형성장
+
+💡 방문 포인트
+미·중 경쟁, AI·기술 패권, 한반도 정세, 한국의 글로벌 역할을 차세대 한인 리더의 관점에서 질문해볼 수 있는 자리입니다." 
+                 data-info-en="🏛 Institution | SNU Institute for Future Strategy
+Established by Seoul National University in 2021 and officially opened in February 2022, the institute studies Korea's long-term national challenges through multidisciplinary research and policy strategy.
+
+👤 Acting Director | Prof. Injoo Sohn
+Professor of Political Science and International Relations at SNU; appointed Acting Director in September 2026.
+
+🔎 Key Research Areas
+• International affairs and economic security
+• Science, technology, and the future
+• Population, democracy, and Global Korea
+• Carbon neutrality and balanced regional growth
+
+💡 Visit Focus
+A strong opportunity to discuss U.S.–China competition, AI and technology, the Korean Peninsula, and Korea's future global role."></div>
+        </div>
+
+        <div class="schedule-card" onclick="openModal(this)">
+            <div class="time">12:00~12:30</div>
+            <div>
+                <div class="title ko">이화의료원 보구녀관 방문</div>
+                <div class="title en">Ewha Medical Center Bogunyeogwan</div>
+            </div>
+            <div class="modal-data" style="display:none;" 
+                 data-time="12:00~12:30" 
+                 data-title-ko="보구녀관 방문" data-title-en="Bogunyeogwan Visit"
+                 data-desc-ko="한국 최초의 여성 전문 병원" data-desc-en="Korea's First Women's Hospital"
+                 data-info-ko="🏥 기관 소개 | 보구녀관 · 이화여자대학교 의료원
+보구녀관(普救女館)은 1887년 설립된 한국 최초의 여성 전문 병원으로, 오늘날 이화여자대학교 의료원의 출발점입니다.
+
+📖 히스토리
+당시 여성들이 남성 의료진에게 진료받기 어려웠던 사회적 환경 속에서 여성 환자를 위한 의료공간으로 출발했습니다. 이후 여성 의료교육과 근대 의료 발전에 중요한 기반이 되었습니다.
+
+💡 방문 포인트
+• 한국 근대 여성의료의 시작
+• 의료와 선교·교육의 결합
+• 이화의료원의 '생명 존중과 사랑'이라는 역사적 정체성" 
+                 data-info-en="🏥 Institution | Bogunyeogwan · Ewha Womans University Medical Center
+Founded in 1887, Bogunyeogwan is recognized as Korea's first hospital dedicated to women and the historical origin of Ewha Womans University Medical Center.
+
+📖 History
+It began as a medical space for women at a time when social norms made it difficult for female patients to receive care from male physicians. It later became an important foundation for women's medical education and modern medicine in Korea.
+
+💡 Visit Focus
+• The beginning of modern women's healthcare in Korea
+• The connection among medicine, mission, and education
+• Ewha Medical Center's tradition of respect for life and compassionate care"></div>
+        </div>
+
+        <div class="schedule-card" onclick="openModal(this)">
+            <div class="time">12:30~13:30</div>
+            <div>
+                <div class="title ko">이화의료원 유경하 원장 초청 오찬</div>
+                <div class="title en">Luncheon Hosted by Dir. Yoo Kyung-ha</div>
+            </div>
+            <div class="modal-data" style="display:none;" 
+                 data-time="12:30~13:30" 
+                 data-title-ko="이화의료원 초청 오찬" data-title-en="Ewha Medical Center Luncheon"
+                 data-desc-ko="유경하 원장님 주최" data-desc-en="Hosted by Director Yoo Kyung-ha"
+                 data-info-ko="👤 초청자 | 유경하 이화여자대학교 의무부총장 겸 의료원장
+이화여자대학교 의료원은 이대목동병원과 이대서울병원을 중심으로 진료·교육·연구를 수행하고 있습니다.
+
+🏥 기관의 뿌리
+의료원의 역사는 1887년 보구녀관에서 시작합니다.
+
+💡 오찬 대화 포인트
+• 한국 의료의 국제 경쟁력
+• 여성 의료와 생명 존중의 전통
+• 한미 의료·헬스케어 교류 가능성
+• 차세대 한인사회와 한국 의료기관의 연결" 
+                 data-info-en="👤 Host | Yoo Kyung-ha, Executive Vice President for Medical Affairs & President of Ewha Womans University Medical Center
+Ewha Medical Center carries out clinical care, education, and research through Ewha Mokdong Hospital and Ewha Seoul Hospital.
+
+🏥 Historical Roots
+Its history begins with Bogunyeogwan in 1887.
+
+💡 Luncheon Topics
+• Global competitiveness of Korean healthcare
+• Women's medicine and respect for life
+• U.S.–Korea healthcare collaboration
+• Connections with next-generation Korean-American communities"></div>
+        </div>
+
+        <div class="schedule-card" onclick="openModal(this)">
+            <div class="time">14:00~15:00</div>
+            <div>
+                <div class="title ko">양화진 (외국인 선교사 묘지)</div>
+                <div class="title en">Yanghwajin (Foreign Missionary Cemetery)</div>
+            </div>
+            <div class="modal-data" style="display:none;" 
+                 data-time="14:00~15:00" 
+                 data-title-ko="양화진 외국인 선교사 묘지" data-title-en="Yanghwajin Cemetery"
+                 data-desc-ko="한국을 위해 헌신한 선교사들의 안식처" data-desc-en="Resting place of foreign missionaries"
+                 data-info-ko="⛪ 장소 소개 | 양화진외국인선교사묘원
+한국에서 활동했던 외국인 선교사와 그 가족들이 안장된 역사적 공간입니다. 한국의 근대 교육·의료·성경 번역·언론·사회봉사 역사와 깊이 연결되어 있습니다.
+
+👥 기억할 인물
+• 언더우드(Horace G. Underwood)
+• 아펜젤러(Henry G. Appenzeller)
+• 메리 스크랜턴(Mary F. Scranton)
+• 헐버트(Homer B. Hulbert)
+• 에비슨(Oliver R. Avison)
+
+📖 방문 의미
+19세기 말부터 한국 사회의 교육과 의료, 근대화 과정에 참여했던 국제적 인물들의 흔적을 살펴볼 수 있습니다.
+
+✓ 현장에서는 정숙을 유지해 주세요." 
+                 data-info-en="⛪ Site | Yanghwajin Foreign Missionary Cemetery
+A historic resting place for foreign missionaries and their families who served in Korea. It is closely connected to the development of modern Korean education, medicine, Bible translation, journalism, and social service.
+
+👥 People to Know
+• Horace G. Underwood
+• Henry G. Appenzeller
+• Mary F. Scranton
+• Homer B. Hulbert
+• Oliver R. Avison
+
+📖 Why It Matters
+The site offers a window into international figures who participated in Korea's modernization from the late 19th century onward.
+
+✓ Please maintain a quiet and respectful atmosphere."></div>
+        </div>
+
+        <div class="schedule-card" onclick="openModal(this)">
+            <div class="time">17:00~17:50</div>
+            <div>
+                <div class="title ko">HS효성 방문 (마포구 공덕동)</div>
+                <div class="title en">HS Hyosung Visit (Gongdeok-dong)</div>
+            </div>
+            <div class="modal-data" style="display:none;" 
+                 data-time="17:00~17:50" 
+                 data-title-ko="HS효성 본사 방문" data-title-en="HS Hyosung Headquarters"
+                 data-desc-ko="마포구 공덕동 소재" data-desc-en="Located in Gongdeok-dong, Mapo-gu"
+                 data-info-ko="🏢 기업 소개 | HS효성
+효성의 산업용 소재·모빌리티·IT 등 일부 사업군을 기반으로 2024년 새 지주회사 체제로 출범했습니다.
+
+👤 대표이사 | 안성훈
+2026년 3월 대표이사로 선임됐으며 기술·R&D 경력을 가진 경영진입니다.
+
+📖 주요 히스토리
+• 1966년 동양나이론 설립
+• 1968년 국내 최초 타이어코드 생산
+• 2018년 효성 사업회사 분할
+• 2024년 HS효성 지주회사 출범
+
+🔎 주요 관심 분야
+첨단소재, 탄소섬유, 타이어 보강재, 글로벌 모빌리티 및 산업 솔루션.
+
+💡 방문 포인트
+한국 제조기업이 기술 중심 글로벌 소재기업으로 확장한 과정과 미국을 포함한 해외 사업 전략을 살펴보면 좋습니다." 
+                 data-info-en="🏢 Company | HS Hyosung
+HS Hyosung launched under a new holding-company structure in 2024, encompassing businesses rooted in advanced materials, mobility, and IT.
+
+👤 CEO | Sung-Hoon Ahn
+Appointed CEO in March 2026 with a background in technology and R&D leadership.
+
+📖 Key History
+• Tongyang Nylon founded in 1966
+• Korea's first tire-cord production in 1968
+• Hyosung business-company split in 2018
+• HS Hyosung holding company launched in 2024
+
+💡 Visit Focus
+Consider how a Korean manufacturer evolved into a technology-driven global materials group and approaches overseas markets including the United States."></div>
+        </div>
+
+        <div class="schedule-card" onclick="openModal(this)">
+            <div class="time">18:00</div>
+            <div>
+                <div class="title ko">HS효성첨단소재(주) 성낙영 대표 초청 만찬</div>
+                <div class="title en">Dinner Hosted by CEO Sung Nak-young</div>
+            </div>
+            <div class="modal-data" style="display:none;" 
+                 data-time="18:00" 
+                 data-title-ko="HS효성첨단소재 만찬" data-title-en="HS Hyosung Advanced Materials Dinner"
+                 data-desc-ko="성낙영 대표님 초청" data-desc-en="Hosted by CEO Sung Nak-young"
+                 data-info-ko="🏢 기업 소개 | HS효성첨단소재
+타이어 보강재, 산업용 원사, 아라미드, 탄소섬유 등 고성능 산업소재를 생산하는 글로벌 소재기업입니다.
+
+👤 공식 홈페이지 기준 대표이사 | 임진달 · 성낙양
+※ 일정표에는 '성낙영 대표 초청'으로 기재되어 있으나, 회사 공식 홈페이지에는 '성낙양 대표이사'로 표기되어 있습니다.
+
+⭐ 핵심 경쟁력
+• 1968년 국내 최초 타이어코드 생산
+• PET 타이어코드 글로벌 선도
+• ALKEX® 아라미드, TANSOME® 탄소섬유
+• 자동차·토목·운송·스포츠·방산 등에 소재 공급
+
+📖 히스토리
+2018년 효성첨단소재가 별도 법인으로 출범·상장했고, 현재 HS효성 계열에서 사업을 이어가고 있습니다.
+
+💡 만찬 포인트
+글로벌 공급망, 미국 시장, 첨단소재, 친환경·경량화 소재를 주제로 대화를 나누기 좋은 자리입니다." 
+                 data-info-en="🏢 Company | HS Hyosung Advanced Materials
+A global advanced-materials company producing tire reinforcements, industrial yarns, aramid, carbon fiber, and other high-performance materials.
+
+👤 CEOs Listed on the Official Website | Jindal Lim · Nakyang Seong
+※ The itinerary says 'CEO Sung Nak-young,' while the company's official website currently lists 'Nakyang Seong.'
+
+⭐ Core Strengths
+• Korea's first tire-cord production in 1968
+• Global leadership in PET tire cord
+• ALKEX® aramid and TANSOME® carbon fiber
+• Materials used across automotive, civil engineering, transportation, sports, and defense
+
+📖 History
+Hyosung Advanced Materials became a separate listed company in 2018 and now operates within the HS Hyosung group structure."></div>
+        </div>
+    </div>
+
+    <!-- 10/1 (목) -->
+    <div class="date-section">
+        <div class="date-title">
+            <span class="ko">10/1 (목)</span>
+            <span class="en">Oct 1 (Thu)</span>
+        </div>
+
+        <div class="schedule-card" onclick="openModal(this)">
+            <div class="time">9:30</div>
+            <div>
+                <div class="title ko">삼정호텔 출발</div>
+                <div class="title en">Departure from Samjung Hotel</div>
+            </div>
+            <div class="modal-data" style="display:none;" 
+                 data-time="9:30" 
+                 data-title-ko="삼정호텔 출발" data-title-en="Departure from Samjung Hotel"
+                 data-desc-ko="2일차 일정 시작" data-desc-en="Start of Day 2"
+                 data-info-ko="둘째 날 아침입니다. 잊은 물건 없이 로비로 모여주세요. 오늘은 산업과 문화를 아우르는 일정이 준비되어 있습니다." 
+                 data-info-en="Good morning on Day 2! Please gather at the lobby with all your belongings. Today's schedule features a mix of industry and culture."></div>
+        </div>
+
+        <div class="schedule-card" onclick="openModal(this)">
+            <div class="time">10:00~11:00</div>
+            <div>
+                <div class="title ko">(주)모레 방문</div>
+                <div class="title en">Moreh Inc. Visit</div>
+                <div class="subtitle ko">한국의 대표적인 AI기업</div>
+                <div class="subtitle en">Korea's representative AI company</div>
+            </div>
+            <div class="modal-data" style="display:none;" 
+                 data-time="10:00~11:00" 
+                 data-title-ko="(주)모레 (Moreh Inc.)" data-title-en="Moreh Inc."
+                 data-desc-ko="한국의 대표 AI 인프라 기업" data-desc-en="Korea's leading AI infrastructure company"
+                 data-info-ko="🤖 기업 소개 | 모레(MOREH)
+2020년 설립된 AI 인프라 소프트웨어 기업입니다. AMD·NVIDIA·Tenstorrent 등 서로 다른 AI 가속기를 통합해 고성능 AI 클러스터처럼 활용하도록 만드는 소프트웨어를 개발합니다.
+
+👤 대표 | 조강원
+서울대학교 컴퓨터공학부 및 대학원 출신으로 대규모 병렬컴퓨팅·AI 인프라 분야를 연구해온 창업자입니다.
+
+⭐ 핵심 기술
+• MoAI 플랫폼
+• GPU·NPU 가상화 및 자동 병렬화
+• 이기종 AI 가속기 통합
+• 대규모 학습·추론 인프라 최적화
+
+📖 주요 히스토리
+• 2020년 설립
+• 2021년 KT Cloud와 AMD GPU 기반 AI 클라우드 상용화
+• 2023년 AMD·KT 등으로부터 2,200만 달러 Series B 투자
+• 2024년 MoMo-72B, Hugging Face Open LLM Leaderboard 1위
+• 2026년 정부 독자 AI 파운데이션 모델 프로젝트 컨소시엄 선정
+
+💡 방문 포인트
+AI 경쟁의 핵심이 칩 자체뿐 아니라 여러 칩을 효율적으로 묶는 인프라 소프트웨어로 이동하는 흐름을 이해하면 좋습니다." 
+                 data-info-en="🤖 Company | MOREH
+Founded in 2020, MOREH develops AI infrastructure software that can combine accelerators from AMD, NVIDIA, Tenstorrent, and others into unified high-performance AI clusters.
+
+👤 CEO | Gangwon Jo
+An SNU-trained computer scientist and entrepreneur with a background in large-scale parallel computing and AI infrastructure.
+
+⭐ Core Technology
+• MoAI platform
+• GPU/NPU virtualization and automatic parallelization
+• Heterogeneous accelerator integration
+• Large-scale AI training and inference optimization
+
+📖 Milestones
+• Founded in 2020
+• AMD GPU-based public AI cloud with KT Cloud in 2021
+• $22M Series B from investors including AMD and KT in 2023
+• MoMo-72B ranked No. 1 on Hugging Face Open LLM Leaderboard in 2024
+• Selected for a Korean sovereign AI foundation-model consortium in 2026"></div>
+        </div>
+
+        <div class="schedule-card" onclick="openModal(this)">
+            <div class="time">11:50~12:30</div>
+            <div>
+                <div class="title ko">(주)참서브 김종훈 대표 초청 오찬</div>
+                <div class="title en">Luncheon Hosted by CEO Kim Jong-hoon</div>
+                <div class="subtitle ko">스퀘어컨벤션 2층</div>
+                <div class="subtitle en">Square Convention 2F</div>
+            </div>
+            <div class="modal-data" style="display:none;" 
+                 data-time="11:50~12:30" 
+                 data-title-ko="(주)참서브 오찬" data-title-en="Charmserve Luncheon"
+                 data-desc-ko="김종훈 대표님 초청, 스퀘어컨벤션" data-desc-en="Hosted by CEO Kim Jong-hoon"
+                 data-info-ko="👤 초청자 | (주)참서브 김종훈 대표
+스퀘어컨벤션 2층에서 진행되는 공식 오찬 및 네트워킹 일정입니다.
+
+💡 오찬 포인트
+• 오전 AI 기업 방문에서 느낀 점 공유
+• 한국 기업인들과의 네트워크 형성
+• 차세대 한인 리더와 한국 기업 간 교류 가능성 논의
+
+※ 참서브의 상세 기업 연혁·사업정보는 신뢰할 만한 공개 공식자료 확인이 제한적이어서, 확인되지 않은 내용은 넣지 않았습니다." 
+                 data-info-en="👤 Host | Kim Jong-hoon, CEO of Charmserve
+An official luncheon and networking session at Square Convention.
+
+💡 Luncheon Focus
+• Share observations from the morning AI-company visit
+• Build relationships with Korean business leaders
+• Discuss opportunities connecting next-generation Korean-American leaders with Korean companies
+
+※ Detailed corporate history has not been added because sufficiently authoritative public information was not readily verifiable."></div>
+        </div>
+
+        <div class="schedule-card" onclick="openModal(this)">
+            <div class="time">12:40~15:40</div>
+            <div>
+                <div class="title ko">영화 오디세이 관람 (CGV기흥)</div>
+                <div class="title en">Movie Odyssey (CGV Giheung)</div>
+            </div>
+            <div class="modal-data" style="display:none;" 
+                 data-time="12:40~15:40" 
+                 data-title-ko="영화 오디세이 관람" data-title-en="Movie 'Odyssey'"
+                 data-desc-ko="CGV 기흥 문화의 시간" data-desc-en="Cultural Time at CGV Giheung"
+                 data-info-ko="잠시 일정의 긴장을 풀고 다 함께 영화를 관람하는 문화 시간입니다. 최신 극장 시설에서 편안하게 휴식을 취하며 재충전하시기 바랍니다." 
+                 data-info-en="A cultural break to watch a movie together and unwind. Relax in the modern theater facilities and recharge your energy for the rest of the day."></div>
+        </div>
+
+        <div class="schedule-card" onclick="openModal(this)">
+            <div class="time">17:00~17:50</div>
+            <div>
+                <div class="title ko">고려아연(주) 방문</div>
+                <div class="title en">Korea Zinc Visit</div>
+                <div class="subtitle ko">종로구 그랑서울타워 1</div>
+                <div class="subtitle en">Gran Seoul Tower 1, Jongno-gu</div>
+            </div>
+            <div class="modal-data" style="display:none;" 
+                 data-time="17:00~17:50" 
+                 data-title-ko="고려아연(주) 본사 방문" data-title-en="Korea Zinc Headquarters"
+                 data-desc-ko="세계 1위 비철금속 제련 기업" data-desc-en="World's leading non-ferrous metal company"
+                 data-info-ko="🏭 기업 소개 | 고려아연(Korea Zinc)
+아연·연·귀금속 등 비철금속 제련을 중심으로 성장한 한국의 대표 소재기업입니다. 온산제련소를 핵심 생산거점으로 글로벌 시장에서 사업을 전개하고 있습니다.
+
+👤 CEO | 최윤범 회장
+공식 리더십 기준 Executive Chairman 겸 CEO입니다.
+
+⭐ 주요 사업
+• 아연·연 등 비철금속 제련
+• 금·은 등 귀금속 회수
+• 자원순환 및 2차 원료 활용
+• 신재생에너지·배터리 소재 등 신사업 확대
+
+💡 방문 포인트
+전통적인 제련기업이 자원순환, 에너지, 배터리 소재 등으로 포트폴리오를 확장하는 과정을 살펴보면 좋습니다." 
+                 data-info-en="🏭 Company | Korea Zinc
+One of Korea's major non-ferrous metal companies, built around the smelting and refining of zinc, lead, precious metals, and related materials.
+
+👤 CEO | Yun B. Choi
+Listed by the company as Executive Chairman and CEO.
+
+⭐ Major Businesses
+• Zinc and lead smelting
+• Recovery of gold, silver, and other precious metals
+• Resource recycling and secondary raw materials
+• Expansion into renewable energy and battery-related materials
+
+💡 Visit Focus
+Consider how a traditional smelting company is expanding into circular resources, energy, and battery materials."></div>
+        </div>
+
+        <div class="schedule-card" onclick="openModal(this)">
+            <div class="time">18:00</div>
+            <div>
+                <div class="title ko">고려아연(주) 사장 초청 만찬</div>
+                <div class="title en">Dinner Hosted by President of Korea Zinc</div>
+            </div>
+            <div class="modal-data" style="display:none;" 
+                 data-time="18:00" 
+                 data-title-ko="고려아연 만찬" data-title-en="Korea Zinc Dinner"
+                 data-desc-ko="일정의 마지막 밤을 장식하는 저녁식사" data-desc-en="Final dinner of the schedule"
+                 data-info-ko="🍽 공식 만찬 | 고려아연
+고려아연 경영진 초청 공식 만찬입니다.
+
+🏭 기업 키워드
+비철금속 · 글로벌 제련 · 자원순환 · 신재생에너지 · 배터리 소재
+
+👥 리더십 참고
+공식 홈페이지에는 최윤범 Executive Chairman & CEO를 비롯해 제련·기술·지속가능경영·재무 등 각 부문 경영진이 공개되어 있습니다.
+
+💡 만찬 대화 포인트
+• 한국 제조·소재기업의 글로벌 경쟁력
+• 미국과 한국의 핵심광물 공급망
+• 친환경 제련과 자원순환
+• 차세대 산업에서의 한미 경제협력" 
+                 data-info-en="🍽 Official Dinner | Korea Zinc
+An official dinner hosted by Korea Zinc leadership.
+
+🏭 Company Keywords
+Non-ferrous metals · global smelting · resource recycling · renewable energy · battery materials
+
+👥 Leadership Reference
+The official leadership page lists Executive Chairman & CEO Yun B. Choi together with executives responsible for refining, technology, sustainability, finance, and other functions.
+
+💡 Dinner Topics
+• Global competitiveness of Korean materials companies
+• U.S.–Korea critical-mineral supply chains
+• Sustainable smelting and resource circulation
+• U.S.–Korea economic cooperation in next-generation industries"></div>
+        </div>
+    </div>
+
+    <!-- 10/2 (금) -->
+    <div class="date-section">
+        <div class="date-title">
+            <span class="ko">10/2 (금)</span>
+            <span class="en">Oct 2 (Fri)</span>
+        </div>
+
+        <div class="schedule-card" onclick="openModal(this)">
+            <div class="time">7:00~9:00</div>
+            <div>
+                <div class="title ko">조찬 및 평가회</div>
+                <div class="title en">Breakfast & Evaluation Session</div>
+                <div class="subtitle ko">삼정호텔 2층 라벤더홀</div>
+                <div class="subtitle en">Samjung Hotel 2F Lavender Hall</div>
+            </div>
+            <div class="modal-data" style="display:none;" 
+                 data-time="7:00~9:00" 
+                 data-title-ko="조찬 및 평가회" data-title-en="Breakfast and Evaluation"
+                 data-desc-ko="일정 마무리 및 피드백" data-desc-en="Schedule Wrap-up and Feedback"
+                 data-info-ko="맛있는 조찬과 함께 2박 3일간의 일정을 돌아보는 평가회를 가집니다. 여러분의 솔직하고 유익한 피드백이 향후 프로그램 발전에 큰 도움이 됩니다." 
+                 data-info-en="We will have breakfast while looking back on the 3-day schedule. Your honest and constructive feedback will greatly help improve future programs."></div>
+        </div>
+
+        <div class="schedule-card" onclick="openModal(this)">
+            <div class="time">9:00~11:00</div>
+            <div>
+                <div class="title ko">짐 정리 및 Check Out</div>
+                <div class="title en">Packing & Check Out</div>
+            </div>
+            <div class="modal-data" style="display:none;" 
+                 data-time="9:00~11:00" 
+                 data-title-ko="짐 정리 및 체크아웃" data-title-en="Packing and Check Out"
+                 data-desc-ko="모든 일정을 마치며" data-desc-en="Concluding all schedules"
+                 data-info-ko="호텔 객실에 두고 가는 물건이 없는지 다시 한번 꼼꼼히 확인해 주세요. 짧은 시간이었지만 여러분의 앞날에 큰 자양분이 되었기를 바랍니다. 안전하게 귀가하세요!" 
+                 data-info-en="Please double-check your room to ensure nothing is left behind. We hope this short but impactful journey nourishes your future paths. Have a safe trip home!"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Structure -->
+<div class="modal-overlay" id="infoModal" onclick="closeModal(event)">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <button class="close-btn" onclick="closeModal(event)">&times;</button>
+        <div class="modal-time" id="mTime"></div>
+        <h2 class="modal-title ko" id="mTitleKo"></h2>
+        <h2 class="modal-title en" id="mTitleEn"></h2>
+        <div class="modal-desc ko" id="mDescKo"></div>
+        <div class="modal-desc en" id="mDescEn"></div>
+        <div class="modal-info ko" id="mInfoKo"></div>
+        <div class="modal-info en" id="mInfoEn"></div>
+    </div>
+</div>
+
+<script>
+    // Language Toggle
+    function toggleLanguage() {
+        document.body.classList.toggle('lang-en');
+    }
+
+    // Modal Logic
+    const modal = document.getElementById('infoModal');
+
+    function openModal(element) {
+        const dataNode = element.querySelector('.modal-data');
+        if(!dataNode) return;
+
+        document.getElementById('mTime').innerText = dataNode.getAttribute('data-time');
+
+        document.getElementById('mTitleKo').innerText = dataNode.getAttribute('data-title-ko');
+        document.getElementById('mTitleEn').innerText = dataNode.getAttribute('data-title-en');
+
+        document.getElementById('mDescKo').innerText = dataNode.getAttribute('data-desc-ko');
+        document.getElementById('mDescEn').innerText = dataNode.getAttribute('data-desc-en');
+
+        document.getElementById('mInfoKo').innerText = dataNode.getAttribute('data-info-ko');
+        document.getElementById('mInfoEn').innerText = dataNode.getAttribute('data-info-en');
+
+        modal.classList.add('active');
+    }
+
+    function closeModal(e) {
+        modal.classList.remove('active');
+    }
+</script>
+
+</body>
+</html>
